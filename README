@@ -1,0 +1,34 @@
+# Hotel Reception (Almaty Grand)
+
+A small console app in Kotlin that imitates the work of a hotel receptionist. You can check which rooms are free, check guests in and out, take room service orders, send housekeeping to clean rooms and look at some basic stats. The menu and messages are in Russian.
+
+I picked a hotel because it's a topic where classes, collections and "things that take time" (kitchen, laundry, cleaning) fit together naturally, so I didn't have to build separate examples for each requirement.
+
+This is a plain Kotlin/JVM assignment. There is no Android UI.
+
+## How to run
+
+You need JDK 17 or newer (I used 21) and IntelliJ IDEA.
+
+1. Open the project folder in IntelliJ IDEA and let Gradle sync (it pulls in kotlinx-coroutines).
+2. Open `Main.kt` and press the green run button next to `fun main()`.
+3. Type the menu number in the Run window and press Enter. `0` exits the program.
+
+If the Russian text shows up as garbage in the console, add `-Dfile.encoding=UTF-8 -Dstdout.encoding=UTF-8` to the VM options in the run configuration.
+
+Two guests are already checked in at startup (rooms 101 and 301), so there is something to look at right away. A good way to try everything: check a guest into room 102, order some food for them, check them out, then run housekeeping (option 5) and look at the stats (option 6).
+
+## Where the requirements are
+
+Everything is in `Main.kt`.
+
+- **Variables, types, conditions, loops**: the main `while (true)` loop with `when` in `main()`, the `for` loops that generate the rooms in `Hotel`, and `if`/`when` checks all over the place.
+- **List, Set, Map**: `rooms` is a List, `vipNames` (guests who get a 10% discount) is a Set, and `bookings` (room number to booking) and `foodMenu` are Maps.
+- **map, filter, reduce**: `freeRooms` uses `filter`, `billFor` uses `map` and `fold`, `revenue` uses `map` and `reduceOrNull`, and `occupancyByFloor` uses `groupBy` and `mapValues`.
+- **Functions, higher-order functions, lambdas**: `freeRooms(predicate: (Room) -> Boolean)` takes a lambda, and menu option 1 calls it with `{ it.pricePerNight <= max }`.
+- **Classes and objects**: `Hotel` holds all the logic and state, `Room` and its subclasses are the rooms.
+- **Inheritance**: abstract `Room` with `StandardRoom`, `DeluxeRoom` and `Suite` extending it.
+- **Interfaces and polymorphism**: the `Cleanable` interface is implemented by `Room`. `clean()` and `description()` are overridden, so a Suite is cleaned differently from a Standard room even though both are called through `Room`.
+- **Data classes**: `Guest` and `Booking`.
+- **Sealed classes**: `ServiceOrder` (Food, Laundry, Taxi) and `CheckInResult` (Success, RoomBusy, RoomDirty, NoSuchRoom). The `when` expressions over them don't need an `else`, because the compiler checks that every case is handled.
+- **suspend function and coroutines**: `prepareOrder` and `housekeep` are suspend functions that use `delay` to imitate the kitchen or a housekeeper working. They are launched with `runBlocking` and `async`. In option 5 all dirty rooms are cleaned in parallel using `awaitAll()`.
